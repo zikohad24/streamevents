@@ -27,3 +27,12 @@ streamevents/
 ├── README.md
 ├── env.example
 └── manage.py
+
+## ✅ Requisits previs
+## 🚀 Instal·lació ràpida
+## 🔐 Variables d'entorn (env.example)
+## 👤 Superusuari
+## 🗃️ Migrar a MongoDB (opcional futur)
+## 🛠️ Comandes útils
+## 💾 Fixtures (exemple)
+## 🌱 Seeds (exemple d'script)
