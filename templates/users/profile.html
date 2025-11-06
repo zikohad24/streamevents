@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}El meu perfil{% endblock %}
+{% block content %}
+<h2>Benvingut, {{ user.username }}</h2>
+<p><strong>Nom:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Bio:</strong> {{ user.bio }}</p>
+{% if user.avatar %}
+    <img src="{{ user.avatar.url }}" width="150" class="img-thumbnail">
+{% endif %}
+<a href="{% url 'users:edit_profile' %}" class="btn btn-secondary mt-3">Editar perfil</a>
+{% endblock %}

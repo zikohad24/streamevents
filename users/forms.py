@@ -1,0 +1,61 @@
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+import re
+
+User = get_user_model()
+
+
+class CustomUserCreationForm(forms.ModelForm):
+    password1 = forms.CharField(widget=forms.PasswordInput, label="Contrasenya")
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Confirma la contrasenya")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Aquest email ja està registrat.")
+        return email
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 != password2:
+            raise ValidationError("Les contrasenyes no coincideixen.")
+        if len(password1) < 8 or not re.search(r'[A-Z]', password1) or not re.search(r'\d', password1):
+            raise ValidationError("La contrasenya ha de tenir 8 caràcters, una majúscula i un número.")
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
+
+class CustomUserUpdateForm(forms.ModelForm):
+    bio = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=False)
+    avatar = forms.FileField(required=False)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'bio', 'avatar']
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.CharField(label="Usuari o Email")
+
+    def clean(self):
+        username_or_email = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+        try:
+            user = User.objects.get(email=username_or_email)
+            self.cleaned_data['username'] = user.username
+        except User.DoesNotExist:
+            pass
+        return super().clean()
