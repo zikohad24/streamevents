@@ -1,0 +1,81 @@
+<div class="card h-100 shadow-sm {% if featured %}border-primary{% endif %}">
+    {% if featured %}
+    <div class="position-absolute top-0 start-0 m-2">
+        <span class="badge bg-warning">
+            <i class="bi bi-star-fill"></i> Destacat
+        </span>
+    </div>
+    {% endif %}
+
+    <div class="position-absolute top-0 end-0 m-2">
+        <span class="badge
+            {% if event.status == 'live' %}bg-success
+            {% elif event.status == 'scheduled' %}bg-info
+            {% elif event.status == 'finished' %}bg-secondary
+            {% else %}bg-warning{% endif %}">
+            {{ event.get_status_display }}
+        </span>
+    </div>
+
+    {% if event.thumbnail %}
+    <img src="{{ event.thumbnail.url }}"
+         class="card-img-top"
+         alt="{{ event.title }}"
+         style="height: 160px; object-fit: cover;">
+    {% else %}
+    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+         style="height: 160px;">
+        <i class="bi bi-camera-video text-light display-6"></i>
+    </div>
+    {% endif %}
+
+    <div class="card-body d-flex flex-column">
+        <div class="mb-2">
+            <span class="badge bg-primary">{{ event.get_category_display }}</span>
+        </div>
+
+        <h5 class="card-title">{{ event.title }}</h5>
+
+        <p class="card-text flex-grow-1">
+            {{ event.description|truncatewords:20 }}
+        </p>
+
+        <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center text-muted small mb-2">
+                <div>
+                    <i class="bi bi-calendar-event"></i>
+                    {{ event.scheduled_date|date:"d/m H:i" }}
+                </div>
+                <div>
+                    <i class="bi bi-eye"></i>
+                    {{ event.max_viewers }}
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+                {% if event.creator.profile.avatar %}
+                <img src="{{ event.creator.profile.avatar.url }}"
+                     alt="{{ event.creator.username }}"
+                     class="rounded-circle me-2"
+                     width="24"
+                     height="24">
+                {% else %}
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                     style="width: 24px; height: 24px;">
+                    <span class="text-white small">{{ event.creator.username|first|upper }}</span>
+                </div>
+                {% endif %}
+                <small class="text-muted">{{ event.creator.username }}</small>
+            </div>
+
+            <a href="{% url 'events:event_detail' event.pk %}"
+               class="btn btn-outline-primary w-100 btn-sm">
+                {% if event.status == 'live' %}
+                <i class="bi bi-play-circle"></i> Veure Directe
+                {% else %}
+                <i class="bi bi-info-circle"></i> Més Informació
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</div>

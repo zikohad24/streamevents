@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Esdeveniments - StreamEvents{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">Esdeveniments de Streaming</h1>
+            <p class="lead">Descobreix els millors esdeveniments en directe</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+            <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Crear Esdeveniment
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    {{ search_form.search.label_tag }}
+                    {{ search_form.search }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.category.label_tag }}
+                    {{ search_form.category }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.status.label_tag }}
+                    {{ search_form.status }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.date_from.label_tag }}
+                    {{ search_form.date_from }}
+                </div>
+                <div class="col-md-2">
+                    {{ search_form.date_to.label_tag }}
+                    {{ search_form.date_to }}
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-funnel"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if featured_events %}
+    <div class="mb-5">
+        <h3 class="mb-3">📌 Esdeveniments Destacats</h3>
+        <div class="row">
+            {% for event in featured_events %}
+            <div class="col-md-4 mb-4">
+                {% include 'events/includes/event_card.html' with event=event featured=True %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <h3 class="mb-3">🎯 Tots els Esdeveniments</h3>
+
+    {% if page_obj %}
+    <div class="row">
+        {% for event in page_obj %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            {% include 'events/includes/event_card.html' with event=event %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Paginació d'esdeveniments">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Següent</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-calendar-x display-1 text-muted"></i>
+        <h3 class="mt-3">No s'han trobat esdeveniments</h3>
+        <p class="text-muted">Prova amb altres filtres o crea el teu primer esdeveniment.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'events:event_create' %}" class="btn btn-primary">Crear Esdeveniment</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

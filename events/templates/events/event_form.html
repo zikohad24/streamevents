@@ -1,0 +1,479 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if event %}Editar {{ event.title }}{% else %}Crear Esdeveniment{% endif %} - StreamEvents
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Forzar formato 24h en datetime-local */
+input[type="datetime-local"] {
+    font-family: monospace;
+}
+
+/* Ocultar AM/PM en navegadores WebKit (Chrome, Safari, Edge) */
+input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
+    display: none;
+}
+
+/* Ocultar segundos */
+input[type="datetime-local"]::-webkit-datetime-edit-second-field {
+    display: none;
+}
+
+/* Mejorar el aspecto del selector de fecha */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    background-color: #e9ecef;
+}
+
+/* Para Firefox */
+input[type="datetime-local"] {
+    -moz-appearance: textfield;
+}
+
+input[type="datetime-local"]::-moz-calendar-picker-indicator {
+    opacity: 0.7;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">
+                        {% if event %}
+                        <i class="fas fa-edit"></i> Editar Esdeveniment
+                        {% else %}
+                        <i class="fas fa-plus-circle"></i> Crear Esdeveniment
+                        {% endif %}
+                    </h1>
+                    <p class="text-muted">
+                        {% if event %}
+                        Modifica les dades del teu esdeveniment
+                        {% else %}
+                        Crea un nou esdeveniment de streaming
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{% if event %}{% url 'events:event_detail' event.pk %}{% else %}{% url 'events:event_list' %}{% endif %}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Tornar
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate id="eventForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Títol -->
+                                <div class="mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">
+                                        {{ form.title.label }} *
+                                    </label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.title.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Categoria -->
+                                <div class="mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                                        {{ form.category.label }} *
+                                    </label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.category.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Data i hora -->
+<div class="mb-3">
+    <label for="id_scheduled_date" class="form-label">
+        {{ form.scheduled_date.label }} *
+    </label>
+
+    <input type="datetime-local"
+           name="scheduled_date"
+           id="id_scheduled_date"
+           class="form-control {% if form.scheduled_date.errors %}is-invalid{% endif %}"
+           {% if form.scheduled_date.value %}
+             value="{{ form.scheduled_date.value|date:'Y-m-d\TH:i' }}"
+           {% elif event and event.scheduled_date %}
+             value="{{ event.scheduled_date|date:'Y-m-d\TH:i' }}"
+           {% endif %}
+           step="60"
+           required>
+
+    {% if form.scheduled_date.errors %}
+    <div class="invalid-feedback d-block">
+        {% for error in form.scheduled_date.errors %}
+        {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="form-text">
+        <strong>Format 24h obligatori:</strong> Exemple: <code>2025-12-04T18:30</code> o <code>04/12/2025 18:30</code>
+    </div>
+</div>
+
+                                <!-- Màxim espectadors -->
+                                <div class="mb-3">
+                                    <label for="{{ form.max_viewers.id_for_label }}" class="form-label">
+                                        {{ form.max_viewers.label }}
+                                    </label>
+                                    {{ form.max_viewers }}
+                                    {% if form.max_viewers.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.max_viewers.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Thumbnail -->
+                                <div class="mb-3">
+                                    <label for="{{ form.thumbnail.id_for_label }}" class="form-label">
+                                        {{ form.thumbnail.label }}
+                                    </label>
+                                    {{ form.thumbnail }}
+                                    {% if form.thumbnail.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.thumbnail.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if event and event.thumbnail %}
+                                    <div class="mt-2">
+                                        <img src="{{ event.thumbnail.url }}"
+                                             alt="Thumbnail actual"
+                                             class="img-thumbnail"
+                                             style="max-height: 100px;">
+                                        <small class="d-block text-muted">Thumbnail actual</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Estat (només en edició) -->
+                                {% if event %}
+                                <div class="mb-3">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                                        {{ form.status.label }}
+                                    </label>
+                                    {{ form.status }}
+                                    {% if form.status.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.status.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Descripció -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {{ form.description.label }} *
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- URL del streaming -->
+                        <div class="mb-3">
+                            <label for="{{ form.stream_url.id_for_label }}" class="form-label">
+                                {{ form.stream_url.label }}
+                            </label>
+                            {{ form.stream_url }}
+                            {% if form.stream_url.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.stream_url.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                URLs suportades: YouTube, Twitch. Exemple: https://www.youtube.com/watch?v=VIDEO_ID
+                            </div>
+                        </div>
+
+                        <!-- Etiquetes -->
+                        <div class="mb-4">
+                            <label for="{{ form.tags.id_for_label }}" class="form-label">
+                                {{ form.tags.label }}
+                            </label>
+                            {{ form.tags }}
+                            {% if form.tags.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.tags.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Separa les etiquetes amb comes. Exemple: gaming, fortnite, directe
+                            </div>
+                        </div>
+
+                        <!-- Botons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% if event %}{% url 'events:event_detail' event.pk %}{% else %}{% url 'events:event_list' %}{% endif %}"
+                               class="btn btn-outline-secondary">
+                                Cancel·lar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if event %}
+                                <i class="fas fa-check-circle"></i> Actualitzar Esdeveniment
+                                {% else %}
+                                <i class="fas fa-plus-circle"></i> Crear Esdeveniment
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateField = document.querySelector('#id_scheduled_date');
+    const form = document.querySelector('#eventForm');
+
+    if (dateField) {
+        // Configuración inicial
+        dateField.setAttribute('autocomplete', 'off');
+
+        // Prevenir entrada de AM/PM
+        dateField.addEventListener('keydown', function(e) {
+            const key = e.key.toLowerCase();
+            // Bloquear teclas relacionadas con AM/PM
+            if (key === 'a' || key === 'p' || key === 'm' || key === ' ') {
+                e.preventDefault();
+                showDateTimeHelp();
+            }
+        });
+
+        // Limpiar la entrada en cada cambio
+        dateField.addEventListener('input', function() {
+            let value = this.value;
+
+            // Eliminar AM/PM si el navegador los añade
+            value = value.replace(/\s*(AM|PM|am|pm)\s*/gi, '');
+
+            // Eliminar segundos si existen
+            value = value.replace(/:00(?![0-9])/, '');
+
+            // Convertir a mayúsculas para formato ISO
+            value = value.toUpperCase();
+
+            this.value = value;
+        });
+
+        // Validación al perder foco
+        dateField.addEventListener('blur', function() {
+            validateDateTimeField(this);
+        });
+
+        // Validación antes de enviar el formulario
+        form.addEventListener('submit', function(e) {
+            if (!validateDateTimeField(dateField, true)) {
+                e.preventDefault();
+            }
+        });
+
+        // Mostrar ayuda al hacer clic
+        dateField.addEventListener('focus', function() {
+            showDateTimeHelp();
+        });
+    }
+
+    function validateDateTimeField(field, isSubmit = false) {
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+
+        if (!value) {
+            if (isSubmit) {
+                errorMessage = 'La data i hora són obligatòries.';
+                isValid = false;
+            }
+        } else {
+            // Verificar si contiene AM/PM
+            if (/\s*(AM|PM|am|pm)/gi.test(value)) {
+                errorMessage = 'ERROR: Utilitza format 24h (0-23). Exemple: 18:30 en lloc de 6:30 PM';
+                isValid = false;
+            }
+
+            // Verificar formato y hora válida
+            if (isValid) {
+                // Intentar formato ISO (AAAA-MM-DDTHH:MM)
+                let date;
+                let match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+
+                if (match) {
+                    // Formato ISO
+                    const year = parseInt(match[1]);
+                    const month = parseInt(match[2]);
+                    const day = parseInt(match[3]);
+                    const hours = parseInt(match[4]);
+                    const minutes = parseInt(match[5]);
+
+                    date = new Date(year, month - 1, day, hours, minutes);
+
+                    if (hours > 23 || hours < 0) {
+                        errorMessage = 'Hora invàlida. Ha de ser entre 00 i 23.';
+                        isValid = false;
+                    }
+                } else {
+                    // Intentar formato español (DD/MM/AAAA HH:MM)
+                    match = value.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/);
+
+                    if (match) {
+                        const day = parseInt(match[1]);
+                        const month = parseInt(match[2]);
+                        const year = parseInt(match[3]);
+                        const hours = parseInt(match[4]);
+                        const minutes = parseInt(match[5]);
+
+                        date = new Date(year, month - 1, day, hours, minutes);
+
+                        if (hours > 23 || hours < 0) {
+                            errorMessage = 'Hora invàlida. Ha de ser entre 00 i 23.';
+                            isValid = false;
+                        }
+                    } else {
+                        errorMessage = 'Format invàlid. Utilitza: AAAA-MM-DDTHH:MM o DD/MM/AAAA HH:MM';
+                        isValid = false;
+                    }
+                }
+
+                // Verificar que la fecha sea válida
+                if (date && (isNaN(date.getTime()) || date.getFullYear() < 2024)) {
+                    errorMessage = 'Data invàlida. Utilitza una data futura.';
+                    isValid = false;
+                }
+
+                // Verificar que no sea fecha pasada
+                if (date && date < new Date()) {
+                    errorMessage = 'La data programada no pot ser en el passat.';
+                    isValid = false;
+                }
+            }
+        }
+
+        // Actualizar estado visual
+        if (isValid) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+
+            // Eliminar mensaje de error si existe
+            const errorDiv = field.parentElement.querySelector('.date-error-message');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        } else {
+            field.classList.remove('is-valid');
+            field.classList.add('is-invalid');
+
+            // Mostrar mensaje de error
+            const errorDiv = field.parentElement.querySelector('.date-error-message');
+            if (errorDiv) {
+                errorDiv.textContent = errorMessage;
+            } else {
+                const newErrorDiv = document.createElement('div');
+                newErrorDiv.className = 'invalid-feedback d-block date-error-message';
+                newErrorDiv.textContent = errorMessage;
+                field.parentElement.appendChild(newErrorDiv);
+            }
+
+            if (isSubmit) {
+                field.focus();
+            }
+        }
+
+        return isValid;
+    }
+
+    function showDateTimeHelp() {
+        // Crear o mostrar tooltip de ayuda
+        let helpDiv = document.querySelector('#dateTimeHelp');
+
+        if (!helpDiv) {
+            helpDiv = document.createElement('div');
+            helpDiv.id = 'dateTimeHelp';
+            helpDiv.className = 'alert alert-info mt-2';
+            helpDiv.innerHTML = `
+                <strong>Format 24h obligatori:</strong><br>
+                • <code>AAAA-MM-DDTHH:MM</code> (ex: 2025-12-04T18:30)<br>
+                • <code>DD/MM/AAAA HH:MM</code> (ex: 04/12/2025 18:30)<br>
+                <small>No s'accepta AM/PM. Les hores van de 00 a 23.</small>
+            `;
+
+            const fieldContainer = dateField.parentElement;
+            fieldContainer.appendChild(helpDiv);
+
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                if (helpDiv) {
+                    helpDiv.style.opacity = '0';
+                    helpDiv.style.transition = 'opacity 0.5s';
+                    setTimeout(() => {
+                        if (helpDiv && helpDiv.parentElement) {
+                            helpDiv.parentElement.removeChild(helpDiv);
+                        }
+                    }, 500);
+                }
+            }, 5000);
+        }
+    }
+});
+</script>
+{% endblock %}

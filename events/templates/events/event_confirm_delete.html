@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar {{ event.title }} - StreamEvents{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminació
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5 class="alert-heading">⚠️ Atenció!</h5>
+                        <p class="mb-0">Estàs a punt d'eliminar l'esdeveniment:</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text text-muted">{{ event.description|truncatewords:30 }}</p>
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span><i class="bi bi-calendar-event"></i> {{ event.scheduled_date|date:"d/m/Y H:i" }}</span>
+                                <span><i class="bi bi-tag"></i> {{ event.get_category_display }}</span>
+                                <span><i class="bi bi-eye"></i> {{ event.max_viewers }} espectadors</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <strong>Aquesta acció no es pot desfer.</strong> Tota la informació de l'esdeveniment s'eliminarà permanentment.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel·lar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Sí, Eliminar Esdeveniment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

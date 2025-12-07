@@ -1,0 +1,287 @@
+[
+    {
+      "model": "events.event",
+      "pk": 1,
+      "fields": {
+        "title": "Torneig Fortnite 2025",
+        "description": "Competició oficial amb jugadors de nivell alt.",
+        "creator": 1,
+        "category": "gaming",
+        "scheduled_date": "2025-06-10T18:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 300,
+        "is_featured": true,
+        "created_at": "2025-02-01T10:00:00Z",
+        "updated_at": "2025-02-01T10:00:00Z",
+        "tags": "fortnite, tornejos, battle royale",
+        "stream_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 2,
+      "fields": {
+        "title": "Concert Indie Català",
+        "description": "Música en directe amb artistes locals emergents.",
+        "creator": 1,
+        "category": "music",
+        "scheduled_date": "2025-07-15T20:30:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 200,
+        "is_featured": true,
+        "created_at": "2025-02-02T11:00:00Z",
+        "updated_at": "2025-02-02T11:00:00Z",
+        "tags": "indie, música catalana, concert",
+        "stream_url": "https://www.youtube.com/watch?v=abcdefghijk"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 3,
+      "fields": {
+        "title": "Xerrada d'Intel·ligència Artificial",
+        "description": "Debat sobre el futur de la IA i les seves implicacions.",
+        "creator": 1,
+        "category": "technology",
+        "scheduled_date": "2025-05-20T17:00:00Z",
+        "status": "live",
+        "thumbnail": "",
+        "max_viewers": 250,
+        "is_featured": false,
+        "created_at": "2025-01-15T09:00:00Z",
+        "updated_at": "2025-05-20T17:00:00Z",
+        "tags": "ia, tecnologia, futur",
+        "stream_url": "https://www.youtube.com/watch?v=mnopqrstuvw"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 4,
+      "fields": {
+        "title": "Tutorial Python per a Principiants",
+        "description": "Introducció a la programació amb Python des de zero.",
+        "creator": 1,
+        "category": "education",
+        "scheduled_date": "2025-08-05T16:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 150,
+        "is_featured": false,
+        "created_at": "2025-02-10T14:00:00Z",
+        "updated_at": "2025-02-10T14:00:00Z",
+        "tags": "python, programació, tutorial",
+        "stream_url": "https://www.youtube.com/watch?v=python123"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 5,
+      "fields": {
+        "title": "Taller d'Art Digital",
+        "description": "Aprèn tècniques d'art digital amb Procreate.",
+        "creator": 1,
+        "category": "art",
+        "scheduled_date": "2025-07-08T15:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 120,
+        "is_featured": false,
+        "created_at": "2025-01-25T13:00:00Z",
+        "updated_at": "2025-01-25T13:00:00Z",
+        "tags": "art digital, procreate, taller",
+        "stream_url": "https://www.twitch.tv/artdigital"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 6,
+      "fields": {
+        "title": "Final Lliga eSports 2025",
+        "description": "Gran final del campionat professional d'eSports.",
+        "creator": 1,
+        "category": "gaming",
+        "scheduled_date": "2025-09-01T21:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 1000,
+        "is_featured": true,
+        "created_at": "2025-02-15T16:00:00Z",
+        "updated_at": "2025-02-15T16:00:00Z",
+        "tags": "esports, final, campionat",
+        "stream_url": "https://www.twitch.tv/esports"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 7,
+      "fields": {
+        "title": "Debat sobre Canvi Climàtic",
+        "description": "Discussió sobre solucions al canvi climàtic.",
+        "creator": 1,
+        "category": "talk",
+        "scheduled_date": "2025-04-25T19:00:00Z",
+        "status": "finished",
+        "thumbnail": "",
+        "max_viewers": 180,
+        "is_featured": false,
+        "created_at": "2025-01-10T10:00:00Z",
+        "updated_at": "2025-04-25T21:00:00Z",
+        "tags": "canvi climàtic, medi ambient, debat",
+        "stream_url": "https://www.youtube.com/watch?v=climate123"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 8,
+      "fields": {
+        "title": "Classe de Yoga en Directe",
+        "description": "Sessió de yoga per a tots els nivells.",
+        "creator": 1,
+        "category": "sports",
+        "scheduled_date": "2025-06-18T09:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 100,
+        "is_featured": false,
+        "created_at": "2025-02-08T08:30:00Z",
+        "updated_at": "2025-02-08T08:30:00Z",
+        "tags": "yoga, benestar, esports",
+        "stream_url": "https://www.youtube.com/watch?v=yoga456"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 9,
+      "fields": {
+        "title": "Festival Música Electrónica",
+        "description": "Festival virtual amb DJs internacionals.",
+        "creator": 1,
+        "category": "music",
+        "scheduled_date": "2025-12-31T22:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 5000,
+        "is_featured": true,
+        "created_at": "2025-02-20T12:00:00Z",
+        "updated_at": "2025-02-20T12:00:00Z",
+        "tags": "música electrònica, festival, any nou",
+        "stream_url": "https://www.youtube.com/watch?v=electronic789"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 10,
+      "fields": {
+        "title": "Taller d'Emprenedoria",
+        "description": "Com crear un negoci digital des de zero.",
+        "creator": 1,
+        "category": "education",
+        "scheduled_date": "2025-08-22T17:30:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 200,
+        "is_featured": false,
+        "created_at": "2025-02-12T15:00:00Z",
+        "updated_at": "2025-02-12T15:00:00Z",
+        "tags": "emprenedoria, negoci, digital",
+        "stream_url": "https://www.youtube.com/watch?v=business456"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 11,
+      "fields": {
+        "title": "Stream Desenvolupament Videojocs",
+        "description": "Creació d'un videojoc amb Unity en directe.",
+        "creator": 1,
+        "category": "gaming",
+        "scheduled_date": "2025-10-10T14:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 300,
+        "is_featured": false,
+        "created_at": "2025-02-18T10:00:00Z",
+        "updated_at": "2025-02-18T10:00:00Z",
+        "tags": "desenvolupament, unity, videojocs",
+        "stream_url": "https://www.twitch.tv/gamedev"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 12,
+      "fields": {
+        "title": "Conferència Realitat Virtual",
+        "description": "El futur de la RV i RA en la societat.",
+        "creator": 1,
+        "category": "technology",
+        "scheduled_date": "2025-09-15T18:30:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 350,
+        "is_featured": true,
+        "created_at": "2025-02-22T11:30:00Z",
+        "updated_at": "2025-02-22T11:30:00Z",
+        "tags": "realitat virtual, tecnologia, innovació",
+        "stream_url": "https://www.youtube.com/watch?v=vr123"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 13,
+      "fields": {
+        "title": "Club de Lectura: Ciència Ficció",
+        "description": "Debat sobre novel·les de ciència ficció.",
+        "creator": 1,
+        "category": "talk",
+        "scheduled_date": "2025-11-05T20:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 80,
+        "is_featured": false,
+        "created_at": "2025-02-25T12:00:00Z",
+        "updated_at": "2025-02-25T12:00:00Z",
+        "tags": "lectura, ciència ficció, club",
+        "stream_url": "https://www.youtube.com/watch?v=books789"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 14,
+      "fields": {
+        "title": "Marató de Pel·lícules d'Animació",
+        "description": "24 hores de les millors pel·lícules d'animació.",
+        "creator": 1,
+        "category": "entertainment",
+        "scheduled_date": "2025-12-25T12:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 800,
+        "is_featured": true,
+        "created_at": "2025-03-01T09:45:00Z",
+        "updated_at": "2025-03-01T09:45:00Z",
+        "tags": "animació, cinema, marató",
+        "stream_url": "https://www.twitch.tv/animation"
+      }
+    },
+    {
+      "model": "events.event",
+      "pk": 15,
+      "fields": {
+        "title": "Workshop de Fotografia",
+        "description": "Tècniques professionals de fotografia digital.",
+        "creator": 1,
+        "category": "art",
+        "scheduled_date": "2025-10-05T16:00:00Z",
+        "status": "scheduled",
+        "thumbnail": "",
+        "max_viewers": 150,
+        "is_featured": false,
+        "created_at": "2025-02-28T14:00:00Z",
+        "updated_at": "2025-02-28T14:00:00Z",
+        "tags": "fotografia, digital, taller",
+        "stream_url": "https://www.youtube.com/watch?v=photography123"
+      }
+    }
+]
