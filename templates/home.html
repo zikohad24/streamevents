@@ -1,17 +1,69 @@
 {% extends 'base.html' %}
-{% block title %}Inici{% endblock %}
+{% block title %}Inici - StreamEvents{% endblock %}
 
 {% block content %}
 <div class="text-center mt-5">
     <h1>🎬 Benvingut a StreamEvents!</h1>
-    <p class="lead">Explora i gestiona els teus esdeveniments.</p>
+    <p class="lead">Explora i gestiona els teus esdeveniments de streaming.</p>
 
     {% if user.is_authenticated %}
         <p>Hola, <strong>{{ user.username }}</strong> 👋</p>
-        <a href="{% url 'users:profile' %}" class="btn btn-primary mt-3">Anar al meu perfil</a>
+        <div class="mt-4">
+            <!-- 🆕 BOTONS D'ACCIONS RÀPIDES PER A ESDEVENIMENTS -->
+            <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-calendar-alt me-2"></i>Explorar Esdeveniments
+            </a>
+            <a href="{% url 'events:event_create' %}" class="btn btn-success btn-lg me-3">
+                <i class="fas fa-plus-circle me-2"></i>Crear Esdeveniment
+            </a>
+            <a href="{% url 'users:profile' %}" class="btn btn-outline-dark btn-lg">
+                <i class="fas fa-user me-2"></i>El Meu Perfil
+            </a>
+        </div>
     {% else %}
-        <a href="{% url 'users:login' %}" class="btn btn-success mt-3">Iniciar sessió</a>
-        <a href="{% url 'users:register' %}" class="btn btn-outline-primary mt-3">Registrar-se</a>
+        <div class="mt-4">
+            <!-- 🆕 BOTÓ PER A USUARIS NO AUTENTICATS -->
+            <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-calendar-alt me-2"></i>Veure Esdeveniments
+            </a>
+            <a href="{% url 'users:login' %}" class="btn btn-success btn-lg me-3">
+                <i class="fas fa-sign-in-alt me-2"></i>Iniciar sessió
+            </a>
+            <a href="{% url 'users:register' %}" class="btn btn-outline-dark btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Registrar-se
+            </a>
+        </div>
     {% endif %}
+</div>
+
+<!-- 🆕 SECCIÓ INFORMATIVA -->
+<div class="row mt-5 pt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-video fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Streaming en Directe</h5>
+                <p class="card-text">Gaudeix d'esdeveniments en temps real amb la millor qualitat de streaming.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-calendar-plus fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Crea Esdeveniments</h5>
+                <p class="card-text">Organitza i gestiona els teus propis esdeveniments de manera senzilla.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Comunitat Activa</h5>
+                <p class="card-text">Uneix-te a una comunitat d'aficionats al streaming i comparteix passions.</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

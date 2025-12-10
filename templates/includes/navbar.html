@@ -1,14 +1,61 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="{% url 'home' %}">StreamEvents</a>  <!-- 👈 ara porta a la pàgina principal -->
-    <div class="collapse navbar-collapse justify-content-end">
+    <a class="navbar-brand fw-bold" href="{% url 'home' %}">
+      <i class="fas fa-video me-2"></i>StreamEvents
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- 🆕 BOTONS D'ESDEVENIMENTS AL COSTAT ESQUERRA -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'events:event_list' %}">
+            <i class="fas fa-calendar-alt me-1"></i>Esdeveniments
+          </a>
+        </li>
+
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'events:my_events' %}">
+            <i class="fas fa-user-circle me-1"></i>Els Meus Events
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'events:event_create' %}">
+            <i class="fas fa-plus-circle me-1"></i>Crear Event
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <!-- BOTONS DE USUARI AL COSTAT DRET (els que ja tenies) -->
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
-          <li class="nav-item"><a href="{% url 'users:profile' %}" class="nav-link">Perfil</a></li>
-          <li class="nav-item"><a href="{% url 'users:logout' %}" class="nav-link">Tancar sessió</a></li>
+          <li class="nav-item">
+            <a href="{% url 'users:profile' %}" class="nav-link">
+              <i class="fas fa-user me-1"></i>Perfil
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'users:logout' %}" class="nav-link">
+              <i class="fas fa-sign-out-alt me-1"></i>Tancar sessió
+            </a>
+          </li>
         {% else %}
-          <li class="nav-item"><a href="{% url 'users:login' %}" class="nav-link">Iniciar sessió</a></li>
-          <li class="nav-item"><a href="{% url 'users:register' %}" class="nav-link">Registrar-se</a></li>
+          <li class="nav-item">
+            <a href="{% url 'users:login' %}" class="nav-link">
+              <i class="fas fa-sign-in-alt me-1"></i>Iniciar sessió
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'users:register' %}" class="nav-link">
+              <i class="fas fa-user-plus me-1"></i>Registrar-se
+            </a>
+          </li>
         {% endif %}
       </ul>
     </div>

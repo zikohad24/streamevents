@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
+
 from .models import Event
 from .forms import EventCreationForm, EventUpdateForm, EventSearchForm
 
