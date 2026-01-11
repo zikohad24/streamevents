@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from .models import CustomUser
 
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm
 

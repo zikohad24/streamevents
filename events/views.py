@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
-
+from chat.forms import ChatMessageForm
 from .models import Event
 from .forms import EventCreationForm, EventUpdateForm, EventSearchForm
 
@@ -51,7 +51,6 @@ def event_list_view(request):
     return render(request, 'events/event_list.html', context)
 
 
-
 def event_detail_view(request, pk):
     event = get_object_or_404(Event, pk=pk)
 
@@ -62,10 +61,14 @@ def event_detail_view(request, pk):
 
     is_creator = request.user.is_authenticated and request.user == creator
 
+    # Crear el formulario del chat
+    chat_form = ChatMessageForm()
+
     return render(request, 'events/event_detail.html', {
         'event': event,
         'is_creator': is_creator,
         'creator': creator,
+        'chat_form': chat_form,  # ¡IMPORTANTE! Añade esto al contexto
     })
 
 
