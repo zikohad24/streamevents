@@ -1,12 +1,12 @@
 # events/models.py
 from django.db import models
-from django.conf import settings  # ← AÑADE ESTO
-from django.contrib.auth import get_user_model  # ← O ESTO
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 import re
+from django.db.models import JSONField  # ← YA LO TIENES
 
-# OPCIÓN 1: Usar get_user_model() (RECOMENDADO)
 User = get_user_model()
 
 
@@ -36,9 +36,8 @@ class Event(models.Model):
     title = models.CharField(max_length=200, verbose_name="Títol")
     description = models.TextField(verbose_name="Descripció")
 
-    # CORREGIDO: Usar get_user_model() o settings.AUTH_USER_MODEL
     creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # ← ESTA ES LA FORMA CORRECTA
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='events',
         verbose_name="Creador"
@@ -54,6 +53,12 @@ class Event(models.Model):
     stream_url = models.URLField(max_length=500, verbose_name="URL del stream")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de creació")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Data d'actualització")
+
+    # ========== AÑADIR ESTOS 3 CAMPOS PARA BÚSQUEDA SEMÁNTICA ==========
+    embedding = models.JSONField(blank=True, null=True)  # lista de floats
+    embedding_model = models.CharField(max_length=200, blank=True, null=True)
+    embedding_updated_at = models.DateTimeField(blank=True, null=True)
+    # ===================================================================
 
     class Meta:
         ordering = ['-scheduled_date']

@@ -1,62 +1,61 @@
 from django.db import models
 from django.conf import settings
-from django.utils.timesince import timesince
-from events.models import Event
-
-User = settings.AUTH_USER_MODEL
 
 
 class ChatMessage(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    """
+    Modelo para mensajes del chat
+    """
+    event = models.ForeignKey(
+        'events.Event',
+        on_delete=models.CASCADE,
+        related_name='chat_messages',
+        verbose_name='Evento'
+    )
 
-    # Campos para eliminar mensajes
-    is_deleted = models.BooleanField(default=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Usuario'
+    )
+
+    message = models.TextField(
+        max_length=500,
+        verbose_name='Mensaje'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha de creación'
+    )
+
+    is_deleted = models.BooleanField(
+        default=False,
+        verbose_name='¿Eliminado?'
+    )
+
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha de eliminación'
+    )
+
+    deleted_by = models.CharField(
+        max_length=150,
+        blank=True,
+        null=True,
+        verbose_name='Eliminado por'
+    )
 
     class Meta:
         ordering = ['created_at']
+        verbose_name = 'Mensaje del chat'
+        verbose_name_plural = 'Mensajes del chat'
 
     def __str__(self):
-        if self.is_deleted:
-            return f"Mensaje eliminado (ID: {self.id})"
-        return f"{self.user.username}: {self.message[:50]}..."
-
-    def can_delete(self, user):
-        """
-        Retorna True si l'usuari pot eliminar aquest missatge
-        Pot eliminar: el creador del missatge, el creador de l'esdeveniment, o staff
-        """
-        if not user.is_authenticated:
-            return False
-
-        # El creador del missatge
-        if self.user == user:
-            return True
-
-        # El creador de l'esdeveniment
-        if hasattr(self.event, 'creator') and self.event.creator == user:
-            return True
-
-        # Staff
-        if user.is_staff:
-            return True
-
-        return False
-
-    def get_user_display_name(self):
-        """Retorna el display_name de l'usuari si existeix, sinó el username"""
-        # Si el teu CustomUser té un camp display_name
-        if hasattr(self.user, 'display_name') and self.user.display_name:
-            return self.user.display_name
-        return self.user.username if self.user else "Anònim"
-
-    def get_time_since(self):
-        """Retorna el temps transcorregut des de la creació"""
-        return f"fa {timesince(self.created_at)}"
-
-    class Meta:
-        ordering = ['created_at']  # Més antic primer
-        verbose_name = 'Missatge de Xat'
-        verbose_name_plural = 'Missatges de Xat'
+        username = self.user.username if self.user else 'Anónimo'
+        message_preview = self.message[:50] + '...' if len(self.message) > 50 else self.message
+        status = " [ELIMINADO]" if self.is_deleted else ""
+        return f"{username}: {message_preview}{status}"

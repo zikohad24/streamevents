@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Assistent d'esdeveniments{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+  <h2 class="mb-3">🤖 Assistent d'esdeveniments</h2>
+  <p class="text-muted">Pregunta'm sobre esdeveniments i et recomanar&eacute; els millors!</p>
+
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="onlyFuture" checked>
+    <label class="form-check-label" for="onlyFuture">Només esdeveniments futurs</label>
+  </div>
+
+  <div class="input-group mb-3">
+    <input id="msg" type="text" class="form-control"
+      placeholder="Ex: vull un concert de jazz aquest cap de setmana">
+    <button id="send" class="btn btn-primary">Enviar</button>
+  </div>
+
+  <!-- Historial del xat -->
+  <div id="chat-history" style="max-height: 500px; overflow-y: auto;"></div>
+</div>
+
+<script>
+  async function send() {
+    const msgInput = document.getElementById("msg");
+    const message = msgInput.value.trim();
+    if (!message) return;
+
+    const onlyFuture = document.getElementById("onlyFuture").checked;
+    const history = document.getElementById("chat-history");
+
+    // Afegeix missatge de l'usuari
+    history.innerHTML += `
+      <div class="d-flex justify-content-end mb-2">
+        <div class="bg-primary text-white rounded p-2 px-3" style="max-width:70%">${message}</div>
+      </div>`;
+
+    // Mostra "pensant..."
+    const thinkingId = "thinking-" + Date.now();
+    history.innerHTML += `
+      <div id="${thinkingId}" class="d-flex justify-content-start mb-2">
+        <div class="bg-light border rounded p-2 px-3 text-muted">Pensant...</div>
+      </div>`;
+    history.scrollTop = history.scrollHeight;
+    msgInput.value = "";
+
+    try {
+      const res = await fetch("/assistant/api/chat/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message, only_future: onlyFuture})
+      });
+      const data = await res.json();
+
+      // Elimina "pensant..."
+      document.getElementById(thinkingId)?.remove();
+
+      // Construeix resposta de l'assistent
+      let html = `<div class="d-flex justify-content-start mb-3">
+        <div class="bg-light border rounded p-3" style="max-width:85%">
+          <p class="mb-2">${data.answer || ""}</p>`;
+
+      if (data.events && data.events.length) {
+        html += `<ul class="list-unstyled mb-2">`;
+        data.events.forEach(ev => {
+          const date = ev.scheduled_date ? ev.scheduled_date.split("T")[0] : "Data desconeguda";
+          html += `<li class="mb-1">🎫 <a href="${ev.url}" target="_blank"><strong>${ev.title}</strong></a>
+            <span class="text-muted small"> — ${ev.category} — ${date} (score: ${ev.score})</span></li>`;
+        });
+        html += `</ul>`;
+      }
+
+      if (data.follow_up) {
+        html += `<p class="text-info mb-0"><em>💬 ${data.follow_up}</em></p>`;
+      }
+
+      html += `</div></div>`;
+      history.innerHTML += html;
+
+    } catch (err) {
+      document.getElementById(thinkingId)?.remove();
+      history.innerHTML += `
+        <div class="d-flex justify-content-start mb-2">
+          <div class="bg-danger text-white rounded p-2 px-3">Error: ${err.message}</div>
+        </div>`;
+    }
+
+    history.scrollTop = history.scrollHeight;
+  }
+
+  document.getElementById("send").addEventListener("click", send);
+  document.getElementById("msg").addEventListener("keydown", e => {
+    if (e.key === "Enter") send();
+  });
+</script>
+{% endblock %}

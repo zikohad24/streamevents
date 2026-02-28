@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>🔍 Cerca Semàntica d'Esdeveniments</h2>
+
+    <form method="get" class="mb-4">
+        <div class="input-group mb-3">
+            <input type="text" name="q" value="{{ query }}"
+                   class="form-control form-control-lg"
+                   placeholder="Ex: concert de jazz aquest cap de setmana"
+                   autofocus>
+            <button class="btn btn-primary btn-lg" type="submit">
+                <i class="bi bi-search"></i> Cercar
+            </button>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox"
+                   name="future" value="1" id="futureCheck"
+                   {% if only_future %}checked{% endif %}>
+            <label class="form-check-label" for="futureCheck">
+                Només esdeveniments futurs
+            </label>
+        </div>
+    </form>
+
+    <!-- DEBUG INFO -->
+    {% if debug %}
+    <div class="alert alert-info">
+        <strong>🔧 Debug Info:</strong>
+        <ul class="mb-0">
+            <li>Total events: <strong>{{ debug.total_events }}</strong></li>
+            <li>Events amb embedding: <strong>{{ debug.events_con_embedding }}</strong></li>
+            <li>Only future activat: <strong>{{ debug.only_future }}</strong></li>
+            {% if query %}
+                <li>Query vector length: <strong>{{ debug.query_vec_length }}</strong></li>
+                <li>Events abans de filtrar: <strong>{{ debug.before_filter }}</strong></li>
+                {% if debug.after_filter is not None %}
+                    <li>Events després de filtrar: <strong>{{ debug.after_filter }}</strong></li>
+                {% endif %}
+                <li>Items amb embedding: <strong>{{ debug.items_with_embedding }}</strong></li>
+                <li>Resultats trobats: <strong>{{ debug.results_count }}</strong></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if query %}
+        <p class="text-muted">
+            <small>Model: {{ embedding_model }}</small>
+        </p>
+
+        <h3>Resultats</h3>
+        {% if results %}
+            <div class="list-group">
+                {% for event, score in results %}
+                    <a href="{{ event.get_absolute_url }}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">
+                                    {{ event.get_category_display }} {{ event.title }}
+                                </h5>
+                                <p class="mb-1 text-muted">
+                                    {{ event.description|truncatewords:20 }}
+                                </p>
+                                <small>
+                                    📅 {{ event.scheduled_date|date:"d/m/Y H:i" }}
+                                    {% if event.status == 'live' %}
+                                        <span class="badge bg-danger">En directe</span>
+                                    {% elif event.status == 'scheduled' %}
+                                        <span class="badge bg-info">Programat</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="ms-3">
+                                <span class="badge bg-success">
+                                    {{ score|floatformat:3 }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-info-circle"></i>
+                Cap resultat trobat per a <strong>"{{ query }}"</strong>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,3 +1,4 @@
+<!-- templates/base.html - VERSIÓN CORREGIDA -->
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -5,6 +6,8 @@
     <title>{% block title %}StreamEvents{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Añade esto para que funcionen los dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     {% include 'includes/navbar.html' %}
@@ -13,5 +16,14 @@
         {% block content %}{% endblock %}
     </div>
     {% include 'includes/footer.html' %}
+
+    <!-- Scripts de Bootstrap (si no los tienes) -->
+    <script>
+        // Para que funcionen los tooltips y popovers
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
 </body>
 </html>

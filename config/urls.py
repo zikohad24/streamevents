@@ -10,6 +10,8 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('events/', include('events.urls')),
     path('chat/', include('chat.urls')),
+    path("", include("semantic_search.urls")),
+    path("", include("assistant_chat.urls")),
 ]
 
 if settings.DEBUG:

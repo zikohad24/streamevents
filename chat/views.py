@@ -1,136 +1,216 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.utils.timesince import timesince
+import json
+import time
+from datetime import datetime
 
-from .models import ChatMessage
-from .forms import ChatMessageForm
-from events.models import Event
+# Almacenamiento TEMPORAL en memoria (para pruebas)
+TEMPORAL_MESSAGES = []
 
 
 @csrf_exempt
 def chat_load_messages(request, event_pk):
-    """Cargar mensajes del chat"""
-    try:
-        # 1. Obtener evento
-        event = Event.objects.get(pk=event_pk)
+    """
+    Cargar mensajes - VERSIÓN CORREGIDA
+    """
+    print(f"📡 Cargando mensajes para evento: {event_pk}")
 
-        # 2. Consulta SIMPLE - sin exclude() primero
-        all_messages = ChatMessage.objects.filter(event=event)
+    # Filtrar mensajes para este evento
+    event_messages = [m for m in TEMPORAL_MESSAGES if m.get('event_id') == event_pk]
 
-        # 3. Filtrar en Python (evita problemas Djongo)
-        messages = []
-        for msg in all_messages[:100]:  # Máximo 100
-            if not getattr(msg, 'is_deleted', False):
-                messages.append(msg)
+    print(f"📡 Encontrados {len(event_messages)} mensajes")
 
-        # 4. Preparar datos
-        data = []
-        for msg in messages[:50]:  # Máximo 50 al frontend
-            display_name = msg.user.username if msg.user else 'Anònim'
+    # Preparar respuesta
+    current_user = request.user.username if request.user.is_authenticated else None
+    is_admin = (current_user == 'admin1')
 
-            # Calcular si el usuario actual puede eliminar este mensaje
-            can_delete = (
-                request.user.is_authenticated and
-                msg.user == request.user and
-                not getattr(msg, 'is_deleted', False)
-            )
+    messages_to_send = []
 
-            data.append({
-                'id': msg.id,
-                'display_name': display_name,
-                'message': msg.message,
-                'created_at': timesince(msg.created_at, timezone.now()) + ' enrere',
+    for msg in event_messages:
+        # Determinar si el usuario actual puede eliminar este mensaje
+        can_delete = False
+
+        # Caso 1: Es admin1
+        if is_admin:
+            can_delete = True
+
+        # Caso 2: Es el usuario que creó el mensaje Y el mensaje no está eliminado
+        elif current_user and msg.get('username') == current_user and not msg.get('is_deleted', False):
+            can_delete = True
+
+        # Solo mostrar mensaje si NO está eliminado (excepto para admin)
+        if not msg.get('is_deleted', False) or is_admin:
+            messages_to_send.append({
+                'id': msg.get('id'),
+                'username': msg.get('username'),
+                'display_name': msg.get('display_name'),
+                'message': msg.get('message') if not msg.get('is_deleted', False) else '[Missatge eliminat]',
+                'created_at': msg.get('created_at'),
                 'can_delete': can_delete,
-                'is_highlighted': False,
+                'is_own_message': current_user and msg.get('username') == current_user,
+                'is_deleted': msg.get('is_deleted', False),
+                'deleted_info': msg.get('deleted_info', ''),
+                'is_admin': is_admin,
             })
 
-        return JsonResponse({'messages': data})
+    # Si no hay mensajes, crear uno de bienvenida
 
-    except Event.DoesNotExist:
-        return JsonResponse({'messages': [], 'error': 'Event no trobat'})
-    except Exception as e:
-        # Si hay error, devolver datos de prueba
-        return JsonResponse({
-            'messages': [
-                {
-                    'id': 1,
-                    'display_name': 'Sistema',
-                    'message': 'Chat en funcionament',
-                    'created_at': 'Ara',
-                    'can_delete': False,
-                    'is_highlighted': True,
-                }
-            ]
-        })
 
+    return JsonResponse({
+        'success': True,
+        'messages': messages_to_send,
+        'count': len(messages_to_send),
+    })
 
 @login_required
-@require_POST
+@csrf_exempt
 def chat_send_message(request, event_pk):
-    """Enviar mensaje - Versión simple"""
+    """
+    Enviar mensaje - VERSIÓN DE EMERGENCIA
+    """
+    print(f"🚨 [CHAT-EMERGENCIA] Enviando mensaje para evento: {event_pk}")
+    print(f"🚨 [CHAT-EMERGENCIA] Usuario: {request.user.username}")
+
     try:
-        event = Event.objects.get(pk=event_pk)
+        # Obtener mensaje
+        message_text = ""
 
-        if event.status != 'live':
-            return JsonResponse({'success': False, 'error': 'Event no actiu'})
+        if request.POST:
+            message_text = request.POST.get('message', '').strip()
+        else:
+            try:
+                body = request.body.decode('utf-8')
+                if body:
+                    data = json.loads(body)
+                    message_text = data.get('message', '').strip()
+            except:
+                pass
 
-        message_text = request.POST.get('message', '').strip()
+        print(f"🚨 [CHAT-EMERGENCIA] Mensaje recibido: '{message_text}'")
+
         if not message_text:
-            return JsonResponse({'success': False, 'error': 'Missatge buit'})
+            return JsonResponse({'success': False, 'error': 'Mensaje vacío'})
 
-        # Crear mensaje
-        msg = ChatMessage.objects.create(
-            event=event,
-            user=request.user,
-            message=message_text
-        )
+        # Crear nuevo mensaje
+        new_message = {
+            'id': int(time.time() * 1000),  # ID único basado en tiempo
+            'event_id': int(event_pk),
+            'username': request.user.username,
+            'display_name': request.user.username,
+            'message': message_text,
+            'created_at': 'Ara mateix',
+            'can_delete': True,
+            'is_own_message': True,
+            'is_deleted': False,
+            'deleted_info': '',
+            'is_admin': request.user.username == 'admin1' or request.user.is_staff,
+        }
+
+        # Añadir a memoria
+        TEMPORAL_MESSAGES.append(new_message)
+
+        # Limitar a 100 mensajes máximo
+        if len(TEMPORAL_MESSAGES) > 100:
+            TEMPORAL_MESSAGES.pop(0)
+
+        print(f"🚨 [CHAT-EMERGENCIA] ✅ Mensaje guardado en memoria")
+        print(f"🚨 [CHAT-EMERGENCIA]   Total mensajes en memoria: {len(TEMPORAL_MESSAGES)}")
 
         return JsonResponse({
             'success': True,
-            'message': {
-                'id': msg.id,
-                'display_name': request.user.username,
-                'message': msg.message,
-                'created_at': 'Ara',
-                'can_delete': True,
-                'is_highlighted': False,
+            'message': 'Mensaje enviado',
+            'message_data': new_message,
+            'debug': {
+                'stored_in': 'MEMORY',
+                'total_messages': len(TEMPORAL_MESSAGES)
             }
         })
 
     except Exception as e:
+        print(f"🚨 [CHAT-EMERGENCIA] ❌ Error: {e}")
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+# Las otras funciones las dejamos simples
 @login_required
-@require_POST
+@csrf_exempt
 def chat_delete_message(request, message_pk):
-    """Eliminar mensaje"""
+    """Eliminar mensaje - versión simple"""
     try:
-        msg = ChatMessage.objects.get(pk=message_pk)
+        # Buscar mensaje en memoria
+        for msg in TEMPORAL_MESSAGES:
+            if str(msg.get('id')) == str(message_pk):
+                msg['is_deleted'] = True
+                msg['deleted_info'] = f"Eliminat per {request.user.username}"
+                return JsonResponse({'success': True, 'message': 'Eliminat'})
 
-        # Verificar permisos: solo el autor puede eliminar
-        if request.user != msg.user and not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Missatge no trobat'})
+    except:
+        return JsonResponse({'success': False, 'error': 'Error'})
+
+
+@csrf_exempt
+def chat_delete_all_messages(request, event_pk):
+    """Eliminar todos - solo admin1"""
+    if request.user.username != 'admin1':
+        return JsonResponse({'success': False, 'error': 'Solo admin1'})
+
+    # Marcar como eliminados
+    deleted = 0
+    for msg in TEMPORAL_MESSAGES:
+        if msg.get('event_id') == int(event_pk) and not msg.get('is_deleted'):
+            msg['is_deleted'] = True
+            msg['deleted_info'] = f"Eliminat per {request.user.username}"
+            deleted += 1
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{deleted} mensajes eliminados',
+        'count': deleted
+    })
+
+
+@login_required
+def chat_admin_stats(request, event_pk):
+    """
+    Estadísticas para admin1 - VERSIÓN SIMPLE
+    """
+    try:
+        user = request.user
+
+        # Solo admin1 puede ver estadísticas
+        if user.username != 'admin1' and not user.is_staff:
             return JsonResponse({
                 'success': False,
-                'error': 'No tens permisos per eliminar aquest missatge'
+                'error': 'No autorizado.'
             })
 
-        msg.is_deleted = True
-        msg.save()
+        # Contar mensajes en memoria
+        event_messages = [m for m in TEMPORAL_MESSAGES if m.get('event_id') == event_pk]
+        total_messages = len(event_messages)
+        active_messages = len([m for m in event_messages if not m.get('is_deleted', False)])
+        deleted_messages = len([m for m in event_messages if m.get('is_deleted', False)])
 
-        return JsonResponse({'success': True})
+        # Usuarios únicos
+        unique_users = len(set(m.get('username') for m in event_messages if m.get('username')))
 
-    except ChatMessage.DoesNotExist:
         return JsonResponse({
-            'success': False,
-            'error': 'Missatge no trobat'
+            'success': True,
+            'event': {
+                'id': event_pk,
+                'title': f'Evento {event_pk}',
+            },
+            'stats': {
+                'total_messages': total_messages,
+                'active_messages': active_messages,
+                'deleted_messages': deleted_messages,
+                'unique_users': unique_users,
+            }
         })
+
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'error': f'Error: {str(e)}'
+            'error': str(e)
         })
